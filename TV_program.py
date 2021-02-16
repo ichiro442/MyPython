@@ -8,9 +8,9 @@ URL = 'https://www.tvkingdom.jp/'
 KEYWORD = "香川真司 OR 久保建英"
 
 # WordPress接続情報
-WP_URL = 'http://programing-independence.com'
-WP_USERNAME = 'ichiro'
-WP_PASSWORD = '6tqu fdjn 5P2V IlJw lzNM DneO'
+WP_URL = 'xxxxxxxxxxxx'
+WP_USERNAME = 'xxxxxxxxx'
+WP_PASSWORD = 'xxxxxxxxxxx'
 
 ARTICLE_ID = "9999"
 
