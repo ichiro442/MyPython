@@ -1,0 +1,77 @@
+import requests
+import urllib
+from bs4 import BeautifulSoup
+import re
+
+
+# スクレイピング対象
+#関東
+URL = 'https://www.tvkingdom.jp/chart/23.action'   #東京 #post-id 817
+# URL = 'https://www.tvkingdom.jp/chart/24.action' #神奈川 #post-id 819
+# URL = 'https://www.tvkingdom.jp/chart/2７.action' #千葉 #post-id 815
+# URL = 'https://www.tvkingdom.jp/chart/2９.action' #埼玉 #post-id 813
+# URL = 'https://www.tvkingdom.jp/chart/2５.action' #群馬 #post-id 80
+# URL = 'https://www.tvkingdom.jp/chart/28.action' #栃木 #post-id 852
+# URL = 'https://www.tvkingdom.jp/chart/26.action' #茨城 #post-id 854
+# URL = 'https://www.tvkingdom.jp/chart/32.action' #山梨 #post-id 827
+
+#関西
+# URL = 'https://www.tvkingdom.jp/chart/40.action' #大阪 #post-id 856
+# URL = 'https://www.tvkingdom.jp/chart/41.action' #京都 #post-id 860
+# URL = 'https://www.tvkingdom.jp/chart/44.action' #奈良 #post-id 858
+# URL = 'https://www.tvkingdom.jp/chart/45.action' #滋賀 #post-id 862
+# URL = 'https://www.tvkingdom.jp/chart/42.action' #兵庫 #post-id 864
+# URL = 'https://www.tvkingdom.jp/chart/43.action' #和歌山 #post-id 866
+
+
+
+# WordPress接続情報
+WP_URL = 'xxxxxxxxxxxxxxxxxxxxx.com' #WordPressのご自身のサイトのURL
+WP_USERNAME = 'xxxxxxxxxxxx' #WordPressのユーザー名
+WP_PASSWORD = 'xxxxxxxxxxxxxxxxxxxxxx' #Application Passwordsのパスワード
+
+ARTICLE_ID = "9999"
+
+# ページ取得関数
+def get_news(url1):
+# url、パラメータを設定してリクエストを送る
+    res = requests.get(url1)
+    print('ページ取得結果:{}'.format(res))
+    return res
+
+# WordPress更新関数
+def post_article(id, content):
+
+    # REST APIを使うための認証情報
+    user_ = WP_USERNAME
+    pass_ = WP_PASSWORD
+    # 更新情報
+    payload = {"content": content}      #内容
+               
+    # 記事の更新を行う
+    res = requests.post(urllib.parse.urljoin(WP_URL,  "wp-json/wp/v2/posts/858"),     #"wp-json/wp/v2/posts/"にidを入れてPostすると更新になる
+                        json=payload,                                                   #投稿する記事の内容を設定する
+                        auth=(user_, pass_))                                            #ユーザとアプリケーションパスワードを設定する
+    print('WP投稿結果:{}'.format(res))
+    return res
+
+# メイン
+
+content = 'テレビ番組表'
+res = get_news(URL)
+soup = BeautifulSoup(res.content, "html.parser")
+elems = soup.find_all("a",href=re.compile("/schedule/"))
+
+for i,elem in enumerate(elems):
+
+    # ５件だけ処理する
+    #if i==5:
+    #    break
+    link_ = elem.attrs['href']
+    # 抽出したURLを整形して絶対パスを作る
+    link = 'https://www.tvkingdom.jp' + link_
+    title_elem = elem.text
+    content = content + '<p><a href="' + link + '">' + title_elem + '</a></p>\n'
+
+# 記事を更新する
+post_article(ARTICLE_ID, content)
